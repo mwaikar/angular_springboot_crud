@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -33,6 +34,10 @@ public class EmployeeResource {
 
     @PostMapping("/add")
     public ResponseEntity<Employee> addEmployee(@RequestBody Employee employee) {
+        Employee existingEmployee = employeeService.findEmployeeById(employee.getId());
+        if (null != existingEmployee) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "The employee " + existingEmployee.getName() + " already exists");
+        }
         Employee newEmployee = employeeService.addEmployee(employee);
         return new ResponseEntity<>(newEmployee, HttpStatus.CREATED);
     }
